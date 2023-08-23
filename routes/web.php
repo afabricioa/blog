@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -17,47 +18,8 @@ use App\Models\Post;
 |
 */
 
-Route::get('/', function () {
-    // ddd($posts[0]->getContents()); //serve para debugar as informacoes
-
-    //.map
-    // $posts = array_map(function ($file) {
-    //     $document = YamlFrontMatter::parseFile($file);
-
-    //     return new Post(
-    //         $document->title,
-    //         $document->excerpt,
-    //         $document->date,
-    //         $document->body(),
-    //         $document->slug
-    //     );
-    // }, $files);
-
-    // .foreach
-    // foreach($files as $file){
-    //     $document = YamlFrontMatter::parseFile($file);
-        
-    //     $posts[] = new Post(
-    //         $document->title,
-    //         $document->excerpt,
-    //         $document->date,
-    //         $document->body(),
-    //         $document->slug
-    //     );
-    // }
-
-    return view('posts', [
-        'posts'=> Post::latest()->with('category', 'author')->get()
-    ]);
-});
-
-
-Route::get('posts/{post}', function ($id) {
-    // encontrar um post pelo caminho e retornar uma view.
-    return view('post', [
-        'post' => Post::findOrFail($id)
-    ]);
-});
+Route::get('/', [PostController::class, 'index'])->name('home');
+Route::get('posts/{post}', [PostController::class, 'show']);
 
 Route::get('categories/{category:slug}', function(Category $category) {
     return view('posts', [
@@ -65,8 +27,9 @@ Route::get('categories/{category:slug}', function(Category $category) {
     ]);
 });
 
-Route::get('authors/{author}', function(User $author) {
+Route::get('authors/{author:username}', function(User $author) {
     return view('posts', [
-        'posts'=> $author->posts
+        'posts'=> $author->posts,
+        'categories' => Category::all()
     ]);
 });

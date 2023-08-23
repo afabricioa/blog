@@ -9,7 +9,7 @@ class Post extends Model
 {
     use HasFactory;
 
-    protected $with = ['category', 'author']; //usa o Eager load nas queries sem precisar declarar na rota, 
+    protected $with = ['category', 'author']; //usa o Eager load nas queries sem precisar declarar na rota,
     //evita query desnecessario no banco
 
     public function category(){
@@ -23,4 +23,12 @@ class Post extends Model
     protected $guarded = ['id']; //todas as propriedades sao fillable exceto as que estiverem aqui.
     // protected $fillable = ['title']; //propriedade necessario para usar o mass assignment pra inserir dados.
     //ignora as propriedades
+
+    public function scopeFilter($query, array $filters){
+        $query->when($filters['search'] ?? false, function($query, $search){
+            $query
+                ->where('title', 'like', '%' . $search . '%')
+                ->orWhere('body', 'like', '%' . $search . '%');
+        });
+    }
 }
